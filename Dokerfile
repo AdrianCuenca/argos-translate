@@ -7,14 +7,7 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Copiar el código del servidor al contenedor
-COPY . .
-
-# Descargar modelo EN → ES
-RUN python3 -c "\
-import argostranslate.package;\
-pkg_path = argostranslate.package.download_package('en', 'es');\
-argostranslate.package.install_from_path(pkg_path)"
+RUN git clone https://github.com/argosopentech/argos-translate-server.git ./
 
 EXPOSE 5000
 
