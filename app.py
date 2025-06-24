@@ -8,21 +8,25 @@ app = Flask(__name__)
 def ensure_model():
     installed = argostranslate.translate.get_installed_languages()
     if not any(l.code == "en" and any(t.code == "es" for t in l.translations) for l in installed):
-        packages = argostranslate.package.get_available_packages()
-        for pkg in packages:
-            if pkg.from_code == "en" and pkg.to_code == "es":
-                path = argostranslate.package.download_package(pkg)
-                argostranslate.package.install_from_path(path)
-                print("Modelo EN→ES instalado")
-                break
-
-try:
-    ensure_model()
-except Exception as e:
-    print("Error descargando modelo:", e)
+        print("Descargando modelo EN→ES...")
+        try:
+            packages = argostranslate.package.get_available_packages()
+            for pkg in packages:
+                if pkg.from_code == "en" and pkg.to_code == "es":
+                    path = argostranslate.package.download_package(pkg)
+                    argostranslate.package.install_from_path(path)
+                    print("✅ Modelo EN→ES instalado")
+                    break
+        except Exception as e:
+            print("❌ Error al descargar modelo:", e)
 
 @app.route('/translate', methods=['POST'])
 def translate():
+    try:
+        ensure_model()
+    except Exception as e:
+        print("Error al asegurar modelo:", e)
+
     data = request.get_json()
     from_code = data.get("source_language", "en")
     to_code = data.get("target_language", "es")
